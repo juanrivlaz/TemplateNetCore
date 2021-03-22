@@ -1,4 +1,4 @@
-﻿namespace PrestaQi.Model.Spei
+﻿namespace TemplateNetCore.Model.Spei
 {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3190.0")]
     [System.SerializableAttribute()]

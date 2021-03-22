@@ -1,10 +1,9 @@
 ﻿using InsiscoCore.Utilities.Crypto;
-using PrestaQi.Model.General;
+using TemplateNetCore.Model.General;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PrestaQi.Model
+namespace TemplateNetCore.Model
 {
     [Table("users")]
     public partial class User : Entity<int>
@@ -40,7 +39,5 @@ namespace PrestaQi.Model
         public DateTime? Deleted_At { get; set; }
         [Column("first_login")]
         public bool First_Login { get; set; }
-        [NotMapped]
-        public List<UserModule> Modules { get; set; }
     }
 }

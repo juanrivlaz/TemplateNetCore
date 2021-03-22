@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PrestaQi.Service.Tools
+namespace TemplateNetCore.Service.Tools
 {
     public static class PrestaQiExtensions
     {

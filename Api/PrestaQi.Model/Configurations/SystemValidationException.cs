@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PrestaQi.Model.Configurations
+namespace TemplateNetCore.Model.Configurations
 {
     public class SystemValidationException : Exception
     {

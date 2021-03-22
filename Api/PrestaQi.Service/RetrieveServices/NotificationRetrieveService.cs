@@ -3,14 +3,14 @@ using InsiscoCore.Service;
 using MoreLinq;
 using Newtonsoft.Json;
 using OpenXmlPowerTools;
-using PrestaQi.Model;
+using TemplateNetCore.Model;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
 
-namespace PrestaQi.Service.RetrieveServices
+namespace TemplateNetCore.Service.RetrieveServices
 {
     public class NotificationRetrieveService : RetrieveService<Notification>
     {

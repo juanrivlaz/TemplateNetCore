@@ -1,4 +1,4 @@
-﻿namespace PrestaQi.Model.Dto.Input
+﻿namespace TemplateNetCore.Model.Dto.Input
 {
     public class MessageMail
     {

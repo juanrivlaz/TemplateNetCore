@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PrestaQi.Api.Configuration
+namespace TemplateNetCore.Api.Configuration
 {
     public sealed class InsiscoCoreConfiguration
     {

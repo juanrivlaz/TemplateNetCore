@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using PrestaQi.Api.Configuration;
-using PrestaQi.Model;
-using PrestaQi.Model.Dto.Input;
-using PrestaQi.Model.Dto.Output;
-using PrestaQi.Model.Enum;
+using TemplateNetCore.Api.Configuration;
+using TemplateNetCore.Model;
+using TemplateNetCore.Model.Dto.Input;
+using TemplateNetCore.Model.Dto.Output;
+using TemplateNetCore.Model.Enum;
 
 namespace PrestaQi.Api.Controllers
 {
@@ -23,18 +23,15 @@ namespace PrestaQi.Api.Controllers
     {
         IRetrieveService<User> _UserRetrieveService;
         IConfiguration _Configuration;
-        IWriteService<Investor> _InvestorWriteService;
         
 
         public LoginController(
             IConfiguration configuration,
-            IRetrieveService<User> userRetrieveService,
-            IWriteService<Investor> investorWriteService
+            IRetrieveService<User> userRetrieveService
             )
         {
             this._UserRetrieveService = userRetrieveService;
             this._Configuration = configuration;
-            this._InvestorWriteService = investorWriteService;
         }
 
         [HttpPost, AllowAnonymous]
@@ -54,7 +51,7 @@ namespace PrestaQi.Api.Controllers
                         Token = tokenString,
                         User = user.User,
                         Type = user.Type,
-                        TypeName = ((PrestaQiEnum.UserType)user.Type).ToString()
+                        TypeName = ((TemplateNetCoreEnum.UserType)user.Type).ToString()
                     });
                 
             }
@@ -68,24 +65,9 @@ namespace PrestaQi.Api.Controllers
             string mail = string.Empty;
             int id = 0;
 
-            switch (user.Type)
-            {
-                case 1:
-                    nameComplete = $"{((User)user.User).First_Name.TrimStart().TrimEnd()} {((User)user.User).Last_Name.TrimStart().TrimEnd()}";
-                    mail = ((User)user.User).Mail;
-                    id = ((User)user.User).id;
-                    break;
-                case 2:
-                    nameComplete = $"{((Investor)user.User).First_Name.TrimStart().TrimEnd()} {((Investor)user.User).Last_Name.TrimStart().TrimEnd()}";
-                    mail = ((Investor)user.User).Mail;
-                    id = ((Investor)user.User).id;
-                    break;
-                case 3:
-                    nameComplete = $"{((Accredited)user.User).First_Name.TrimStart().TrimEnd()} {((Accredited)user.User).Last_Name.TrimStart().TrimEnd()}";
-                    mail = ((Accredited)user.User).Mail;
-                    id = ((Accredited)user.User).id;
-                    break;
-            }
+            nameComplete = $"{((User)user.User).First_Name.TrimStart().TrimEnd()} {((User)user.User).Last_Name.TrimStart().TrimEnd()}";
+            mail = ((User)user.User).Mail;
+            id = ((User)user.User).id;
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -95,15 +77,10 @@ namespace PrestaQi.Api.Controllers
                 new Claim(JwtRegisteredClaimNames.GivenName, nameComplete),
                 new Claim(JwtRegisteredClaimNames.Email, mail),
                 new Claim("Type", user.Type.ToString()),
-                new Claim("TypeName", ((PrestaQiEnum.UserType)user.Type).ToString()),
+                new Claim("TypeName", ((TemplateNetCoreEnum.UserType)user.Type).ToString()),
                 new Claim("UserId", id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }.ToList();
-
-            if (user.Type == (int)PrestaQiEnum.UserType.Administrador)
-            {
-                claims.Add(new Claim("Roles", JsonConvert.SerializeObject(((User)user.User).Modules)));
-            }
 
             var token = new JwtSecurityToken(_Configuration["Jwt:Issuer"],
               _Configuration["Jwt:Issuer"],

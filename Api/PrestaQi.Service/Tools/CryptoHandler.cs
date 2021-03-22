@@ -1,9 +1,9 @@
-﻿using PrestaQi.Model.Spei;
+﻿using TemplateNetCore.Model.Spei;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 
-namespace PrestaQi.Service.Tools
+namespace TemplateNetCore.Service.Tools
 {
     public class CryptoHandler
     {

@@ -1,10 +1,10 @@
-﻿using PrestaQi.Model.General;
+﻿using TemplateNetCore.Model.General;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace PrestaQi.Model
+namespace TemplateNetCore.Model
 {
     [Table("logerrors")]
     public class LogError : Entity<long>

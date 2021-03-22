@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using PrestaQi.Model.Configurations;
-using PrestaQi.Model.Dto.Output;
+using TemplateNetCore.Model.Configurations;
+using TemplateNetCore.Model.Dto.Output;
 using System;
 using System.Net;
 
-namespace PrestaQi.Api.Configuration
+namespace TemplateNetCore.Api.Configuration
 {
     public class ExceptionHandling : ExceptionFilterAttribute
     {

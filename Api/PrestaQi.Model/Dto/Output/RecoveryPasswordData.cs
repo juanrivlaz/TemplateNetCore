@@ -1,10 +1,10 @@
-﻿using PrestaQi.Model.Enum;
+﻿using TemplateNetCore.Model.Enum;
 
-namespace PrestaQi.Model.Dto.Output
+namespace TemplateNetCore.Model.Dto.Output
 {
     public class RecoveryPasswordData
     {
-        public PrestaQiEnum.UserType UserType { get; set; }
+        public TemplateNetCoreEnum.UserType UserType { get; set; }
         public object Data { get; set; }
         public string Password { get; set; }
         public string Mail { get; set; }

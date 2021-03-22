@@ -1,7 +1,7 @@
-﻿using PrestaQi.Model.General;
+﻿using TemplateNetCore.Model.General;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PrestaQi.Model
+namespace TemplateNetCore.Model
 {
     [Table("speiresponses")]
     public class SpeiResponse : Entity<int>

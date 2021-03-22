@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PrestaQi.Model.General
+namespace TemplateNetCore.Model.General
 {
     public class Entity<T> : IEntity<T>
     {

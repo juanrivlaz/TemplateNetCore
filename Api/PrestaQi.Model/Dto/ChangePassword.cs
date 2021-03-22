@@ -1,4 +1,4 @@
-﻿namespace PrestaQi.Model.Dto
+﻿namespace TemplateNetCore.Model.Dto
 {
     public class ChangePassword
     {

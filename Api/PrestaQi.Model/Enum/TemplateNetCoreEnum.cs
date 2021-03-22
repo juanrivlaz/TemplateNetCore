@@ -1,6 +1,6 @@
-﻿namespace PrestaQi.Model.Enum
+﻿namespace TemplateNetCore.Model.Enum
 {
-    public class PrestaQiEnum
+    public class TemplateNetCoreEnum
     {
         public enum CapitalEnum
         {

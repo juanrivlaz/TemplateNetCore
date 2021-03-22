@@ -5,13 +5,13 @@ using InsiscoCore.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PrestaQi.DataAccess;
+using TemplateNetCore.DataAccess;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace PrestaQi.Api.Configuration
+namespace TemplateNetCore.Api.Configuration
 {
     public class ServicePool
     {

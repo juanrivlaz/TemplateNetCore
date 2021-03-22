@@ -2,8 +2,8 @@
 using iText.Layout.Properties;
 using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
-using PrestaQi.Model;
-using PrestaQi.Model.Dto.Input;
+using TemplateNetCore.Model;
+using TemplateNetCore.Model.Dto.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,9 +12,9 @@ using System.Net;
 using System.Net.Mail;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using PrestaQi.Model.Enum;
+using TemplateNetCore.Model.Enum;
 
-namespace PrestaQi.Service.Tools
+namespace TemplateNetCore.Service.Tools
 {
     public static class Utilities
     {
@@ -35,60 +35,6 @@ namespace PrestaQi.Service.Tools
             return passwordRandom;
         }
 
-        public static bool SendEmail(List<string> emails, MessageMail messageMail, Configuration configuration, FileMail file = null)
-        {
-            ConfigurationEmail configurationEmail = JsonConvert.DeserializeObject<ConfigurationEmail>(configuration.Configuration_Value);
-            
-            SmtpClient smtpClient = new SmtpClient(configurationEmail.Host, configurationEmail.Port)
-            {
-                EnableSsl = configurationEmail.EnableSsl,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new NetworkCredential(configurationEmail.User, configurationEmail.Password),
-                Timeout = 2000000
-            };
-
-            var mail = new MailMessage(configurationEmail.User, string.Join(",", emails), messageMail.Subject, messageMail.Message);
-
-            if (file != null)
-                mail.Attachments.Add(new Attachment(file.File, file.FileName));
-
-            mail.IsBodyHtml = true;
-            smtpClient.Send(mail);
-
-            mail.Dispose();
-            smtpClient.Dispose();
-
-            return true;
-        }
-
-        public static byte[] GetFile(List<Configuration> configurations, string endPointName)
-        {
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(endPointName);
-
-            request.KeepAlive = true;
-            request.UsePassive = true;
-            request.UseBinary = true;
-
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-            request.Credentials = new NetworkCredential(configurations.Find(p => p.Configuration_Name == "FTP_USER").Configuration_Value,
-                configurations.Find(p => p.Configuration_Name == "FTP_PASSWORD").Configuration_Value);
-
-            FtpWebResponse ftpWebResponse = (FtpWebResponse)request.GetResponse();
-
-            Stream stream = ftpWebResponse.GetResponseStream();
-            byte[] file;
-
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                file = memoryStream.ToArray();
-            }
-
-            ftpWebResponse.Close();
-            request = null;
-
-            return file;
-        }
 
         public static void GenerateEmptyCell(int num, List<Cell> cells)
         {
@@ -224,21 +170,6 @@ namespace PrestaQi.Service.Tools
                 result += Math.Pow(10, -decimalpoint);
             }
             return result;
-        }
-    
-        public static (DateTime initial, DateTime finish) getPeriodoByAccredited(Accredited accredited, DateTime currentDate)
-        {
-            switch (accredited.Period_Id)
-            {
-                case (int)PrestaQiEnum.PerdioAccredited.Semanal:
-                    break;
-                case (int)PrestaQiEnum.PerdioAccredited.Quincenal:
-                    break;
-                default:
-                    break;
-            }
-
-            return ( DateTime.Now, DateTime.Now );
         }
 
         private static List<int> semanal(int initial)

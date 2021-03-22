@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PrestaQi.Service.Tools
+namespace TemplateNetCore.Service.Tools
 {
     public class Moneda
     {

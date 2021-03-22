@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PrestaQi.Model.FireBase
+namespace TemplateNetCore.Model.FireBase
 {
     public class FireNotification
     {

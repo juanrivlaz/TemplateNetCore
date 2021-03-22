@@ -1,8 +1,8 @@
-﻿using PrestaQi.Model.Enum;
-using PrestaQi.Model.General;
+﻿using TemplateNetCore.Model.Enum;
+using TemplateNetCore.Model.General;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PrestaQi.Model
+namespace TemplateNetCore.Model
 {
     [Table("notifications")]
     public partial class Notification : Entity<int>
@@ -22,6 +22,6 @@ namespace PrestaQi.Model
         [Column("data_text")]
         public string Data_Text { get; set; }
         [Column("notificationtype")]
-        public PrestaQiEnum.NotificationType NotificationType { get; set; }
+        public TemplateNetCoreEnum.NotificationType NotificationType { get; set; }
     }
 }

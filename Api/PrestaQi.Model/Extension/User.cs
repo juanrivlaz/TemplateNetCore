@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PrestaQi.Model
+namespace TemplateNetCore.Model
 {
     public partial class User
     {

@@ -1,41 +1,29 @@
 ﻿using InsiscoCore.Base.Data;
 using InsiscoCore.Base.Service;
 using InsiscoCore.Service;
-using PrestaQi.Model;
-using PrestaQi.Model.Configurations;
-using PrestaQi.Model.Dto.Input;
-using PrestaQi.Model.Dto.Output;
-using PrestaQi.Model.Spei;
+using TemplateNetCore.Model;
+using TemplateNetCore.Model.Configurations;
+using TemplateNetCore.Model.Dto.Input;
+using TemplateNetCore.Model.Dto.Output;
+using TemplateNetCore.Model.Spei;
 using System;
 using System.Linq;
 
-namespace PrestaQi.Service.WriteServices
+namespace TemplateNetCore.Service.WriteServices
 {
     public class SpeiResponseWriteService : WriteService<SpeiResponse>
     {
         IRetrieveService<SpeiResponse> _SpeiResponseRetrieveService;
-        IRetrieveService<Advance> _AdvanceRetrieveService;
-        IRetrieveService<Accredited> _AccreditedRetrieveService;
-        IRetrieveService<Repayment> _RepaymentRetrieveService;
         IProcessService<ordenPagoWS> _OrdenPagoProcessService;
-        IWriteRepository<Advance> _AdvanceWriteRepository;
 
         public SpeiResponseWriteService(
             IWriteRepository<SpeiResponse> repository,
             IRetrieveService<SpeiResponse> speiResponseRetrieveService,
-            IRetrieveService<Advance> advanceRetrieveService,
-            IRetrieveService<Accredited> accreditedRetrieveService,
-            IRetrieveService<Repayment> repaymentRetrieveService,
-            IProcessService<ordenPagoWS> ordenPagoProcessService,
-            IWriteRepository<Advance> advanceWriteRepository
+            IProcessService<ordenPagoWS> ordenPagoProcessService
             ) : base(repository)
         {
             this._SpeiResponseRetrieveService = speiResponseRetrieveService;
-            this._AdvanceRetrieveService = advanceRetrieveService;
-            this._AccreditedRetrieveService = accreditedRetrieveService;
-            this._RepaymentRetrieveService = repaymentRetrieveService;
             this._OrdenPagoProcessService = ordenPagoProcessService;
-            this._AdvanceWriteRepository = advanceWriteRepository;
         }
 
         public override bool Create(SpeiResponse entity)
@@ -65,42 +53,34 @@ namespace PrestaQi.Service.WriteServices
                 if (speiResponse == null)
                     throw new SystemValidationException($"Id: {stateChange.Id} Not found");
 
-                var advance = this._AdvanceRetrieveService.Find(speiResponse.advance_id);
-                var accredited = this._AccreditedRetrieveService.Find(advance.Accredited_Id);
-
                 speiResponse.State_Name = stateChange.Estado;
 
                 if (stateChange.CausaDevolucion > 0)
                 {
                     speiResponse.Repayment_Id = stateChange.CausaDevolucion;
 
-                    var repayment = this._RepaymentRetrieveService.Find(speiResponse.Repayment_Id);
-                    speiTransactionResult.Message = repayment.Description;
+                    speiTransactionResult.Message = "Mensaje de Spei";
                 }
 
-                speiTransactionResult.Mail = accredited.Mail;
-                speiTransactionResult.UserId = accredited.id;
-                speiTransactionResult.Accredited = $"{accredited.First_Name} {accredited.Last_Name}";
+                speiTransactionResult.Mail = "";//accredited.Mail;
+                speiTransactionResult.UserId = 1; // accredited.id;
+                speiTransactionResult.Accredited = "Nombre"; //$"{accredited.First_Name} {accredited.Last_Name}";
                 speiTransactionResult.Success = base.Update(speiResponse);
 
                 if (speiTransactionResult.Success && stateChange.CausaDevolucion == 0)
                 {
-                    advance.Enabled = true;
-                    this._AdvanceWriteRepository.Update(advance);
 
                     this._OrdenPagoProcessService.ExecuteProcess<SendSpeiMail, bool>(new SendSpeiMail()
                     {
-                        Amount = advance.Amount,
-                        Accredited_Id = accredited.id,
-                        Accredited = accredited,
-                        Advance = advance
+                        Amount = 10, // monto solicitado
+                        Accredited_Id = 1 //accredited.id
                     });
                 }
 
                 if (speiTransactionResult.Success && stateChange.CausaDevolucion > 0)
                 {
-                    advance.Enabled = false;
-                    this._AdvanceWriteRepository.Update(advance);
+                    //actualizar el status
+                    // this._AdvanceWriteRepository.Update(advance);
                 }
 
                 return speiTransactionResult;

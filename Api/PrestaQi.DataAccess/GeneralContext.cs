@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PrestaQi.Model;
+using TemplateNetCore.Model;
 using System.Linq;
+using TemplateNetCore;
 
-namespace PrestaQi.DataAccess
+namespace TemplateNetCore.DataAccess
 {
     public class GeneralContext : DbContext
     {
@@ -11,9 +12,7 @@ namespace PrestaQi.DataAccess
         }
         
         public DbSet<User> Users { get; set; }
-        public DbSet<Configuration> Configurations { get; set; }
         public DbSet<SpeiResponse> SpeiResponses { get; set; }
-        public DbSet<Device> Devices { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<LogError> LogErrors { get; set; }
 

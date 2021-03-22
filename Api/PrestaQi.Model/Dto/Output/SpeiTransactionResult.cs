@@ -1,4 +1,4 @@
-﻿namespace PrestaQi.Model.Dto.Output
+﻿namespace TemplateNetCore.Model.Dto.Output
 {
     public class SpeiTransactionResult
     {

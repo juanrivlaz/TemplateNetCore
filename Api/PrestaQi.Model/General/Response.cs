@@ -1,4 +1,4 @@
-﻿namespace PrestaQi.Model.General
+﻿namespace TemplateNetCore.Model.General
 {
     public class Response<T>
     {

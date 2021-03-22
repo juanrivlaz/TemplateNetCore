@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PrestaQi.Model.Dto.Output;
+using TemplateNetCore.Model.Dto.Output;
 
-namespace PrestaQi.Api.Configuration
+namespace TemplateNetCore.Api.Configuration
 {
     public class CustomController : ControllerBase
     {

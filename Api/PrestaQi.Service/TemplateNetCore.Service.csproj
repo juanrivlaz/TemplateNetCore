@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PrestaQi.Model\PrestaQi.Model.csproj" />
+    <ProjectReference Include="..\PrestaQi.Model\TemplateNetCore.Model.csproj" />
     <ProjectReference Include="..\WebSocketManager\WebSocketManager.csproj" />
   </ItemGroup>
 
