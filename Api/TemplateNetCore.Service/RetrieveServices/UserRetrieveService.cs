@@ -53,7 +53,7 @@ namespace TemplateNetCore.Service.RetrieveServices
         }
 
         public UserLogin RetrieveResult(DisableUser disableUser)
-        { 
+        {
             if (disableUser.Type == 1)
             {
                 User user = this._Repository.Where(p => p.id == disableUser.UserId).FirstOrDefault();

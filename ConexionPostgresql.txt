@@ -1,0 +1,4 @@
+BASE: TemplateNetCore
+Usuario: template
+Role: role_template
+Password: Proyecto2021*@

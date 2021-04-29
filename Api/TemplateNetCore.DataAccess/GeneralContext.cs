@@ -15,6 +15,9 @@ namespace TemplateNetCore.DataAccess
         public DbSet<SpeiResponse> SpeiResponses { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<LogError> LogErrors { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
+        public DbSet<Dispertion> Dispertions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

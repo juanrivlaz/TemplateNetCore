@@ -11,7 +11,6 @@ namespace TemplateNetCore.Model
         #region "Fields"
         string _first_name;
         string _last_name;
-        string _employee_number;
         string _mail;
         string _phone;
         #endregion
@@ -24,9 +23,6 @@ namespace TemplateNetCore.Model
         public string Last_Name { get => _last_name.Decrypt(); set => _last_name = value.Encrypt(); }
         [Column("password")]
         public string Password { get; set; }
-        [Column("employee_number")]
-        [Encrypted(nameof(_employee_number))]
-        public string Employee_Number { get => _employee_number.Decrypt(); set => _employee_number = value.Encrypt(); }
         [Column("mail")]
         [Encrypted(nameof(_mail))]
         public string Mail { get => _mail.Decrypt(); set => _mail = value.Encrypt(); }

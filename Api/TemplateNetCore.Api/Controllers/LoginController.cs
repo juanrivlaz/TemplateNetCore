@@ -51,6 +51,7 @@ namespace TemplateNetCore.Api.Controllers
                         Token = tokenString,
                         User = user.User,
                         Type = user.Type,
+                        CompanyId = "205132",
                         TypeName = ((TemplateNetCoreEnum.UserType)user.Type).ToString()
                     });
                 
@@ -64,10 +65,12 @@ namespace TemplateNetCore.Api.Controllers
             string nameComplete = string.Empty;
             string mail = string.Empty;
             int id = 0;
+            string companyId = string.Empty;
 
             nameComplete = $"{((User)user.User).First_Name.TrimStart().TrimEnd()} {((User)user.User).Last_Name.TrimStart().TrimEnd()}";
             mail = ((User)user.User).Mail;
             id = ((User)user.User).id;
+            companyId = "205132";
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -79,6 +82,7 @@ namespace TemplateNetCore.Api.Controllers
                 new Claim("Type", user.Type.ToString()),
                 new Claim("TypeName", ((TemplateNetCoreEnum.UserType)user.Type).ToString()),
                 new Claim("UserId", id.ToString()),
+                new Claim("CompanyId", companyId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }.ToList();
 
