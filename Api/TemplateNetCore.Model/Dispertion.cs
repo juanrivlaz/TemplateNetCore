@@ -7,7 +7,11 @@ namespace TemplateNetCore.Model
     public class Dispertion : Entity<int>
     {
         [Column("company_id")]
-        public string Company_Id { get; set; }
+        public int? Company_Id { get; set; }
+        [Column("centro_costos")]
+        public string Centro_Costos { get; set; }
+        [Column("empresa")]
+        public string Empresa { get; set; }
         [Column("clabe")]
         public string Clabe { get; set; }
         [Column("amount")]

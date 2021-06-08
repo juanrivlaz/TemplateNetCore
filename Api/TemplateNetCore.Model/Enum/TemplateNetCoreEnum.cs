@@ -34,7 +34,8 @@
         {
             Administrador = 1,
             Inversionista = 2,
-            Acreditado = 3
+            Acreditado = 3,
+            Compañia = 4
         }
 
         public enum NotificationType

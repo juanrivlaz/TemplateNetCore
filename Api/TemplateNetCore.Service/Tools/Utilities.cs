@@ -34,7 +34,31 @@ namespace TemplateNetCore.Service.Tools
 
             return passwordRandom;
         }
+        public static bool SendEmail(List<string> emails, MessageMail messageMail, Configuration configuration, FileMail file = null)
+        {
+            ConfigurationEmail configurationEmail = JsonConvert.DeserializeObject<ConfigurationEmail>(configuration.Configuration_Value);
 
+            SmtpClient smtpClient = new SmtpClient(configurationEmail.Host, configurationEmail.Port)
+            {
+                EnableSsl = configurationEmail.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Credentials = new NetworkCredential(configurationEmail.User, configurationEmail.Password),
+                Timeout = 2000000
+            };
+
+            var mail = new MailMessage(configurationEmail.User, string.Join(",", emails), messageMail.Subject, messageMail.Message);
+
+            if (file != null)
+                mail.Attachments.Add(new Attachment(file.File, file.FileName));
+
+            mail.IsBodyHtml = true;
+            smtpClient.Send(mail);
+
+            mail.Dispose();
+            smtpClient.Dispose();
+
+            return true;
+        }
 
         public static void GenerateEmptyCell(int num, List<Cell> cells)
         {

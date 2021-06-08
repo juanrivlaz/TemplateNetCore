@@ -11,12 +11,13 @@ namespace TemplateNetCore.Model
     {
         public string First_Name { get; set; }
         public string Last_Name { get ; set ; }
-        public string Company_Id { get; set; }
+        public int Company_Id { get; set; }
+        public string Centro_Costos { get; set; }
+        public string Empresa { get; set; }
         public int Amount { get; set; }
         public string Rfc { get; set; }
         public int Institution_Id { get; set; }
         public string Clabe { get; set; }
         public string Prefijo { get ; set; }
-        public string Token { get; set; }
     }
 }

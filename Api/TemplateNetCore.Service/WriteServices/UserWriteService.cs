@@ -36,11 +36,11 @@ namespace TemplateNetCore.Service.WriteServices
 
             try
             {
-                string password = Utilities.GetPasswordRandom();
+                //string password = Utilities.GetPasswordRandom();
 
                 entity.Enabled = true;
-                entity.First_Login = true;
-                entity.Password = InsiscoCore.Utilities.Crypto.MD5.Encrypt(password);
+                entity.First_Login = false;
+                entity.Password = InsiscoCore.Utilities.Crypto.MD5.Encrypt(entity.Password);
                 entity.created_at = DateTime.Now;
                 entity.updated_at = DateTime.Now;
 
@@ -85,6 +85,23 @@ namespace TemplateNetCore.Service.WriteServices
                 return updated;
             }
             catch (Exception exception) { throw new SystemValidationException($"Error updating User: {exception.Message}");  }
+        }
+
+        public bool Update(ChangePassword changePassword)
+        {
+            var user = this._UserRetrieveService.Find(changePassword.User_Id);
+            if (user == null)
+                throw new SystemValidationException("User not found");
+
+            user.updated_at = DateTime.Now;
+
+            try
+            {
+                user.Password = InsiscoCore.Utilities.Crypto.MD5.Encrypt(changePassword.Password);
+                user.First_Login = false;
+                return base.Update(user);
+            }
+            catch (Exception ex) { throw new SystemValidationException($"Error change password! {ex.Message}"); }
         }
 
         public override bool Create(IEnumerable<User> entities)

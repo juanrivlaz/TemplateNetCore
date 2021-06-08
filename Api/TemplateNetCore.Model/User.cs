@@ -1,6 +1,7 @@
 ﻿using InsiscoCore.Utilities.Crypto;
 using TemplateNetCore.Model.General;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TemplateNetCore.Model
@@ -35,5 +36,7 @@ namespace TemplateNetCore.Model
         public DateTime? Deleted_At { get; set; }
         [Column("first_login")]
         public bool First_Login { get; set; }
+        [NotMapped]
+        public List<UserModule> Modules { get; set; }
     }
 }

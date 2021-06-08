@@ -9,19 +9,15 @@ namespace TemplateNetCore.Service.Tools
     {
         public string ruta { get; set; }
         public string password { get; set; }
-
         public string sign(ordenPagoWS ordenPago, byte[] file)
         {
             string cadenaOriginal = originaString(ordenPago);
             X509Certificate2 x509 = new X509Certificate2(file, password);
-
             RSA rsa = (RSA)x509.PrivateKey;
             byte[] hashValue = rsa.SignData(System.Text.Encoding.UTF8.GetBytes(cadenaOriginal), HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             string signature = System.Convert.ToBase64String(hashValue);
-
             return signature;
         }
-
         string originaString(ordenPagoWS ordenPago)
         {
             string cadenaOriginal = "";

@@ -86,7 +86,7 @@
     <None Update="Documents\TransferenciaDatosPersonales.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Key\privateKey.p12">
+    <None Update="Key\privateKeyAnt.p12">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Key\prueba.p12">

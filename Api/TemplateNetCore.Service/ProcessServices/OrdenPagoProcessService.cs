@@ -22,21 +22,26 @@ namespace TemplateNetCore.Service.ProcessServices
         IRetrieveService<Accredited> _AccreditedRetrieveService;
         IRetrieveService<Configuration> _ConfigurationRetrieveService;
         IRetrieveService<Company> _CompanyRetrieveService;
-        IWriteService<Dispertion> _DispertionWriteService;
-
+        IRetrieveService<CentroCostos> _CentroCostosRetrieveService;
+        //IWriteService<Dispertion> _DispertionWriteService;
+        //IWriteService<SpeiResponse> _SpeiWriteService;
 
         public OrdenPagoProcessService(
            IRetrieveService<Accredited> accreditedRetrieveService,
            IRetrieveService<Configuration> configurationRetrieveService,
            IRetrieveService<Company> companyRetrieveService,
-           IWriteService<Dispertion> dispertionWriteService
+           IRetrieveService<CentroCostos> centroCostosRetrieveService
+            //IWriteService<Dispertion> dispertionWriteService,
+            //IWriteService<SpeiResponse> speiWriteService
             )
         {
 
             this._AccreditedRetrieveService = accreditedRetrieveService;
             this._ConfigurationRetrieveService = configurationRetrieveService;
             this._CompanyRetrieveService = companyRetrieveService;
-            this._DispertionWriteService = dispertionWriteService;
+            this._CentroCostosRetrieveService = centroCostosRetrieveService;
+            //this._DispertionWriteService = dispertionWriteService;
+            //this._SpeiWriteService = speiWriteService;
         }
 
         public ResponseSpei ExecuteProcess(Accredited accredited)
@@ -44,15 +49,17 @@ namespace TemplateNetCore.Service.ProcessServices
             try
             {
                 var configurations = this._ConfigurationRetrieveService.Where(p => p.Enabled == true).ToList();
-                // Cambiar a mi ruta para que encuentre una ruta
+                var company = this._CompanyRetrieveService.Where(c => c.id == accredited.Company_Id).ToList();
+                var centro_costos = this._CentroCostosRetrieveService.Where(c => c.id == company.First().FkCentroCostos).ToList();
+
                 byte[] file = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), configurations.Find(p => p.Configuration_Name == "CERTIFIED_FTP").Configuration_Value));
                 string prefix = accredited.Prefijo ?? "PR";
-                var company = this._CompanyRetrieveService.Where(c => c.Centro_Costos == accredited.Company_Id).ToList();
                 CryptoHandler crypto = new CryptoHandler();
+                crypto.ruta = configurations.Find(p => p.Configuration_Name == "CERTIFIED_FTP").Configuration_Value;
                 crypto.password = configurations.Find(p => p.Configuration_Name == "CERTIFIED_PASSWORD").Configuration_Value;
                 ordenPagoWS ordenPago = new ordenPagoWS();
-                ordenPago.empresa = company.Find(c => c.Centro_Costos == accredited.Company_Id && c.Enabled == true).Centro_Costos;
-                ordenPago.claveRastreo = $"{prefix}{accredited.Company_Id}{DateTime.Now:yyyyMMdd}";
+                ordenPago.empresa = centro_costos.First().Centro_Costos;
+                ordenPago.claveRastreo = $"{prefix}{company.First().id}{DateTime.Now:yyyyMMddss}";
                 ordenPago.referenciaNumerica = Convert.ToInt32(DateTime.Now.ToString("yyMMdd"));
                 ordenPago.cuentaBeneficiario = accredited.Clabe;
                 ordenPago.tipoPago = Convert.ToInt32(configurations.Find(p => p.Configuration_Name == "PAYMENT_TYPE").Configuration_Value);
@@ -64,29 +71,29 @@ namespace TemplateNetCore.Service.ProcessServices
                 ordenPago.conceptoPago = configurations.Find(p => p.Configuration_Name == "PAYMENT_CONCEPT").Configuration_Value;
                 ordenPago.institucionContraparte = accredited.Institution_Id;
                 ordenPago.monto = decimal.Add(Convert.ToDecimal(accredited.Amount), .00m);
-                ordenPago.tipoCuentaBeneficiarioSpecified = true;
-                ordenPago.institucionOperanteSpecified = true;
-                ordenPago.institucionContraparteSpecified = true;
-                ordenPago.tipoPagoSpecified = true;
-                ordenPago.referenciaNumericaSpecified = true;
-                ordenPago.montoSpecified = true;
-                //ordenPago.firma = crypto.sign(ordenPago, file);
-                
-                // Return Produccion
+                ordenPago.firma = crypto.sign(ordenPago, file);
                 var resultado = CallService(ordenPago, configurations);
                 if (resultado.resultado.id > 0) resultado.resultado.claveRastreo = ordenPago.claveRastreo;
-                // Guardar datos en Dispertion
-                Dispertion dispertion = new Dispertion
+                /*Dispertion dispertion = new Dispertion
                 {
                     Company_Id = accredited.Company_Id,
                     Clabe = ordenPago.cuentaBeneficiario,
-                    Amount = ordenPago.monto,
+                    Amount = accredited.Amount,
                     Institution_Id = ordenPago.institucionContraparte,
                     Clave_Rastreo = ordenPago.claveRastreo,
                     Estatus_Request = resultado.resultado.id,
                     Description_Request = resultado.resultado.descripcionError
                 };
-                var crearDispertion = this._DispertionWriteService.Create(dispertion);
+                bool crearDispertion = this._DispertionWriteService.Create(dispertion);*/
+                //Dispertion datosDispertion = this._DispertionRetrieveService.Find(crearDispertion.id);
+                /*this._SpeiWriteService.Create(new SpeiResponse()
+                {
+                    created_at = DateTime.Now,
+                    updated_at = DateTime.Now,
+                    advance_id = crearDispertion.id,
+                    tracking_id = resultado.resultado.id,
+                    tracking_key = resultado.resultado.claveRastreo
+                });*/
                 return resultado;
             }
             catch (Exception exception)
@@ -107,7 +114,33 @@ namespace TemplateNetCore.Service.ProcessServices
             string baseUri = configurations.Find(p => p.Configuration_Name == "API_SPEI").Configuration_Value;
             string method = configurations.Find(p => p.Configuration_Name == "API_ORDER_REGISTER").Configuration_Value;
 
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(ordenPagoWS);
+            var jsonResolve = new PropertyRenameAndIgnoreSerializerContractResolver();
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "cuentaOrdenante");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "fechaOperacion");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "folioOrigen");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "tipoCuentaOrdenante");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "nombreOrdenante");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "rfcCurpOrdenante");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "emailBeneficiario");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "tipoCuentaBeneficiario2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "nombreBeneficiario2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "cuentaBeneficiario2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "rfcCurpBeneficiario2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "conceptoPago2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "claveCatUsuario1");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "claveCatUsuario2");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "clavePago");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "referenciaCobranza");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "tipoOperacion");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "usuario");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "medioEntrega");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "prioridad");
+            jsonResolve.IgnoreProperty(typeof(ordenPagoWS), "iva");
+
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = jsonResolve;
+
+            var json = JsonConvert.SerializeObject(ordenPagoWS, serializerSettings);
 
             var request = (HttpWebRequest)WebRequest.Create($"{baseUri}{method}");
             request.Method = "PUT";

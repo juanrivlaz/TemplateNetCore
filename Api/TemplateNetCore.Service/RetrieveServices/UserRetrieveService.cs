@@ -14,12 +14,16 @@ namespace TemplateNetCore.Service.RetrieveServices
 {
     public class UserRetrieveService : RetrieveService<User>
     {
+        IRetrieveService<UserModule> _UserModuleRetrieveService;
 
         public UserRetrieveService(
-            IRetrieveRepository<User> repository
-            
+            IRetrieveRepository<User> repository,
+            IRetrieveService<UserModule> userModuleRetrieveService
+
             ) : base(repository)
-        {}
+        {
+            this._UserModuleRetrieveService = userModuleRetrieveService;
+        }
 
         public override IEnumerable<User> Where(Func<User, bool> predicate)
         {
@@ -27,6 +31,7 @@ namespace TemplateNetCore.Service.RetrieveServices
 
             users.ForEach(p =>
             {
+                p.Modules = this._UserModuleRetrieveService.Where(m => m.user_id == p.id).ToList();
                 p.Type = (int)TemplateNetCoreEnum.UserType.Administrador;
                 p.TypeName = TemplateNetCoreEnum.UserType.Administrador.ToString();
             });
@@ -42,9 +47,11 @@ namespace TemplateNetCore.Service.RetrieveServices
             {
                 if (!user.Enabled)
                     throw new SystemValidationException("Inactive User!");
-
-                if (user.Password != InsiscoCore.Utilities.Crypto.MD5.Encrypt(login.Password))
+                var passwordlogin = InsiscoCore.Utilities.Crypto.MD5.Encrypt(login.Password);
+                if (user.Password != passwordlogin)
                     throw new SystemValidationException("Invalid Password!");
+
+                user.Modules = this._UserModuleRetrieveService.Where(p => p.user_id == user.id).ToList();
 
                 return new UserLogin() { Type = 1, User = user };
             }

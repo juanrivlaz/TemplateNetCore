@@ -6,8 +6,8 @@ namespace TemplateNetCore.Model
     [Table("speiresponses")]
     public class SpeiResponse : Entity<int>
     {
-        [Column("advance_id")]
-        public int advance_id { get; set; }
+        [Column("dispertion_id")]
+        public int dispertion_id { get; set; }
         [Column("tracking_id")]
         public int tracking_id { get; set; }
         [Column("tracking_key")]
