@@ -19,15 +19,27 @@ namespace TemplateNetCore.Service.WriteServices
     {
         IProcessService<User> _UserProcessService;
         IRetrieveService<User> _UserRetrieveService;
+        IRetrieveService<UserModule> _UserModuleRetrieveService;
+        IWriteService<UserModule> _UserModuleWriteService;
+        IRetrieveService<Contact> _ContactRetrieveService;
+        IRetrieveService<Configuration> _ConfigurationRetrieveService;
 
         public UserWriteService(
             IWriteRepository<User> repository,
             IRetrieveService<User> userRetrieveService,
-            IProcessService<User> userProcessService
+            IProcessService<User> userProcessService,
+            IWriteService<UserModule> userModuleWriteService,
+            IRetrieveService<UserModule> userModuleRetrieveService,
+            IRetrieveService<Contact> contactRetrieveService,
+            IRetrieveService<Configuration> configurationRetrieveService
             ) : base(repository)
         {
+            this._UserModuleWriteService = userModuleWriteService;
             this._UserRetrieveService = userRetrieveService;
             this._UserProcessService = userProcessService;
+            this._UserModuleRetrieveService = userModuleRetrieveService;
+            this._ContactRetrieveService = contactRetrieveService;
+            this._ConfigurationRetrieveService = configurationRetrieveService;
         }
 
         public override bool Create(User entity)
@@ -36,11 +48,11 @@ namespace TemplateNetCore.Service.WriteServices
 
             try
             {
-                //string password = Utilities.GetPasswordRandom();
+                string password = Utilities.GetPasswordRandom();
 
                 entity.Enabled = true;
-                entity.First_Login = false;
-                entity.Password = InsiscoCore.Utilities.Crypto.MD5.Encrypt(entity.Password);
+                entity.First_Login = true;
+                entity.Password = InsiscoCore.Utilities.Crypto.MD5.Encrypt(password);
                 entity.created_at = DateTime.Now;
                 entity.updated_at = DateTime.Now;
 
@@ -48,9 +60,10 @@ namespace TemplateNetCore.Service.WriteServices
 
                 if (create)
                 {
+                    SaveModules(entity.Modules, entity.id);
                     try
                     {
-                        // SendMail(entity.Mail, password, entity.First_Name);
+                        SendMail(entity.Mail, password, entity.First_Name);
                     }
                     catch (Exception)
                     {
@@ -82,9 +95,25 @@ namespace TemplateNetCore.Service.WriteServices
             {
                 bool updated = base.Update(entity);
 
+                if (updated)
+                    SaveModules(entity.Modules, entity.id);
+
                 return updated;
             }
             catch (Exception exception) { throw new SystemValidationException($"Error updating User: {exception.Message}");  }
+        }
+        public bool Update(ChangeStatusUser changeStatusUser)
+        {
+            try
+            {
+                var user = changeStatusUser.User as User;
+                user.updated_at = DateTime.Now;
+                return base.Update(user);
+            }
+            catch (Exception exception)
+            {
+                throw new SystemValidationException($"Error change status! {exception.Message}");
+            }
         }
 
         public bool Update(ChangePassword changePassword)
@@ -142,6 +171,47 @@ namespace TemplateNetCore.Service.WriteServices
             {
                 throw new SystemValidationException($"Error creating users: {exception.Message}");
             }
+        }
+
+        void SaveModules(List<UserModule> userModules, int id)
+        {
+            var list = this._UserModuleRetrieveService.Where(p => p.user_id == id).ToList();
+            if (list.Count > 0)
+                this._UserModuleWriteService.Delete(list);
+
+            if (userModules != null)
+            {
+                if (userModules.Count > 0)
+                {
+                    userModules.ForEach(p =>
+                    {
+
+                        p.user_id = id; p.created_at = DateTime.Now;
+                        p.updated_at = DateTime.Now;
+                    });
+                    this._UserModuleWriteService.Create(userModules);
+                }
+            }
+        }
+        void SendMail(string mail, string password, string name)
+        {
+            var contacts = this._ContactRetrieveService.Where(p => p.Enabled == true).ToList();
+            var configurations = this._ConfigurationRetrieveService.Where(p => p.Enabled == true).ToList();
+
+            var mailConf = configurations.FirstOrDefault(p => p.Configuration_Name == "EMAIL_CONFIG");
+            var messageConfig = configurations.FirstOrDefault(p => p.Configuration_Name == "USER_CREATE");
+
+            var messageMail = JsonConvert.DeserializeObject<MessageMail>(messageConfig.Configuration_Value);
+            string textHtml = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), messageMail.Message));
+            textHtml = textHtml.Replace("{NAME}", name);
+            textHtml = textHtml.Replace("{MAIL}", mail);
+            textHtml = textHtml.Replace("{PASSWORD}", password);
+            textHtml = textHtml.Replace("{WHATSAPP}", contacts.Find(p => p.id == 1).Contact_Data);
+            textHtml = textHtml.Replace("{MAIL_SOPORTE}", contacts.Find(p => p.id == 2).Contact_Data);
+            textHtml = textHtml.Replace("{PHONE}", contacts.Find(p => p.id == 3).Contact_Data);
+            messageMail.Message = textHtml;
+
+            Utilities.SendEmail(new List<string> { mail }, messageMail, mailConf);
         }
     }
 }

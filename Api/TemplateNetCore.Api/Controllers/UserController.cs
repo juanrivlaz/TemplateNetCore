@@ -7,6 +7,7 @@ using TemplateNetCore.Model;
 using TemplateNetCore.Model.Dto;
 using TemplateNetCore.Model.Dto.Input;
 using TemplateNetCore.Model.Dto.Output;
+using System;
 
 namespace TemplateNetCore.Api.Controllers
 {
@@ -31,6 +32,17 @@ namespace TemplateNetCore.Api.Controllers
             this._UserProcessService = userProcessService;
             this._ContactRetrieveService = contactRetrieveService;
         }
+        [HttpGet, Route("[action]")]
+        public IActionResult GetList([FromQuery] bool onlyActive)
+        {
+            return Ok(
+                onlyActive == true ? this._UserRetrieveService.Where(p => p.Deleted_At == null &&
+                p.Enabled == true &&
+                p.id != Convert.ToInt32(HttpContext.User.FindFirst("UserId").Value)).OrderBy(p => p.First_Name) :
+                this._UserRetrieveService.Where(p => p.Deleted_At == null &&
+                p.id != Convert.ToInt32(HttpContext.User.FindFirst("UserId").Value)).OrderBy(p => p.First_Name)
+                );
+        }
 
         [HttpPost, Authorize]
         public IActionResult Post(User user)
@@ -42,6 +54,13 @@ namespace TemplateNetCore.Api.Controllers
         public IActionResult Put(User user)
         {
             return Ok(this._UserWriteService.Update(user), "User updated!");
+        }
+        [HttpPut, Route("ChangeStatusUser"), Authorize]
+        public IActionResult ChangeStatusUser(DisableUser disableUser)
+        {
+            bool success = ChangeStatus(disableUser).Item1;
+
+            return Ok(success);
         }
 
         [HttpPut, Route("[action]"), Authorize]
@@ -87,6 +106,20 @@ namespace TemplateNetCore.Api.Controllers
 
             return Ok(recovery);
 
+        }
+        (bool, string) ChangeStatus(DisableUser disableUser)
+        {
+            string name = string.Empty;
+            bool success = false;
+
+            var user = this._UserRetrieveService.RetrieveResult<DisableUser, UserLogin>(disableUser);
+
+            
+            success = this._UserWriteService.Update<ChangeStatusUser, bool>(new Model.Dto.Input.ChangeStatusUser() { User = user.User });
+            name = $"{((User)user.User).First_Name} {((User)user.User).Last_Name}";
+            
+
+            return (success, name);
         }
     }
 }
